@@ -90,14 +90,15 @@ typedef struct  CONTROL {
 }CONTROL;
 CONTROL Control;
 
-// 시작화면
+// 게임 실행 전 준비화면
 void ReadyMap() {
 	ScreenPrint(15, 10, "유령의 축제");
 	ScreenPrint(2, 26, "□□□■■■□□□  ■■■□□□■■■");
 	ScreenPrint(2, 27, "  A     S     D       J     K      L");
-
+	// 게임 조작 키 설명 
 }
 
+// Render함수에서 깜빡이면서 출력
 void ReadyMap1() {
 	ScreenPrint(10, 15, "Press Enter to Start");
 }
