@@ -238,33 +238,15 @@ int main(void) {
 		
 		if (_kbhit()) {
 			nKey = _getch();
-			if (nKey == 13) {
+			if (nKey == '\r') {
 				Stage = RUNNING; // 엔터 입력 시 running시작 음악 호출
 				PlaySound(TEXT("Festival_of_Ghost.wav"), NULL, SND_ASYNC | SND_LOOP);
 			}
 			if (nKey == 'p') {
 				Stage = PAUSE;
 			}
-			switch (nKey) {
-			case 'a':
-				CheckA(n);
-				break;
-			case 's':
-				CheckS(n);
-				break;
-			case 'd':
-				CheckD(n);
-				break;
-			case 'j':
-				CheckJ(n);
-				break;
-			case 'k':
-				CheckK(n);
-				break;
-			case 'l':
-				CheckL(n);
-				break;
-
+		    if (nKey=='a' || nKey=='s' || nKey=='d' || nKey=='j' || nKey=='k' || nKey=='l'){
+				CheckKey(nKey);
 			}
 		}
 		Update();  // 데이터 갱신
@@ -354,193 +336,39 @@ void NoteCheck(void) {
 // 충돌처리
 // main에서 해당 키 입력시 호출되는 함수들
 
-void CheckL(int n) { // (28, 2) 부분이 " " 인지 "ㅁ" 인지 판별
-	if (Check == "                                ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore +=500;		
-		nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
+void CheckKey(int nKey) {
+	char *KeyType; // 입력한 키의 종류
+	switch (nKey) {
+	case 'a':
+		KeyType = nKeyA;
+		break;
+	case 's':
+		KeyType = nKeyS;
+		break;
+	case 'd':
+		KeyType = nKeyD;
+		break;
+	case 'j':
+		KeyType = nKeyJ;
+		break;
+	case 'k':
+		KeyType = nKeyK;
+		break;
+	case 'l':
+		KeyType = nKeyL;
+		break;
+	default:
+		KeyType = " ";
+		break;
 	}
-	else if (Check1 == "                                ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300;
-		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "                                ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300;
-		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-
-	else if (Check == "            ■■■              ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
+	if (strcmp(Note[n], KeyType) == 0) { // Perfect판별 구간의 Note와 입력한 KeyType가 일치하는 경우
 		nScore += 500;
 		nCombo++;
 		sprintf(strScore, "%s", "★Perfect★");
 	}
-	else if (Check1 == "            ■■■              ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
+	else if ((n>0 && strcmp(Note[n-1], KeyType) == 0) || strcmp(Note[n + 1], KeyType) == 0) { // Great 판별 구간의 Note와 입력한 KeyType가 일치하는 경우
 		nScore += 300;
 		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "            ■■■              ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300;
-		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else {
-		nCombo = 0;
-	}
-
-}
-
-void CheckK(int n) { // (28, 2) 부분이 " " 인지 "ㅁ" 인지 판별
-	if (Check == "                          ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "                          ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "                          ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check == "      ■■■              ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "      ■■■              ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "      ■■■              ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else {
-		nCombo = 0;
-	}
-}
-
-void CheckJ(int n) { // (28, 2) 부분이 " " 인지 "ㅁ" 인지 판별
-	if (Check == "                    ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500;
-		nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "                    ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300;
-		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "                    ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300;
-		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check == "■■■              ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500;
-		nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "■■■              ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300;
-		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "■■■              ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300;
-		nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else {
-		nCombo = 0;
-	}
-}
-
-void CheckD(int n) { // (28, 2) 부분이 " " 인지 "ㅁ" 인지 판별
-	if (Check == "            ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "            ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "            ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check == "            ■■■              ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "            ■■■              ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "            ■■■              ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else {
-		nCombo = 0;
-	}
-}
-
-void CheckS(int n) { // (28, 2) 부분이 " " 인지 "ㅁ" 인지 판별
-	if (Check == "      ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "      ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "      ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check == "      ■■■              ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "      ■■■              ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "      ■■■              ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else {
-		nCombo = 0;
-	}
-}
-
-void CheckA(int n) { // (28, 2) 부분이 " " 인지 "ㅁ" 인지 판별
-	if (Check == "■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check == "■■■              ■■■") { // 28행 부분 - 이 부분에서 hit 시 Perfect
-		nScore += 500; nCombo++;
-		sprintf(strScore, "%s", "★Perfect★");
-	}
-	else if (Check1 == "■■■              ■■■") {	//29행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
-		sprintf(strScore, "%s", "★Great★");
-	}
-	else if (Check2 == "■■■              ■■■") {	//27행 부분 - 이 부분에서 hit 시 great
-		nScore += 300; nCombo++;
 		sprintf(strScore, "%s", "★Great★");
 	}
 	else {
