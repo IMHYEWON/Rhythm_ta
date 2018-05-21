@@ -3,20 +3,44 @@
 #include<string.h>
 #include<stdlib.h>
 #include<time.h>
+#include<conio.h>
 #include<ctype.h>
 #include<windows.h>
 #include<time.h>
-#include"Screen.h""
+#include"Screen.h"
 #include "Note.h"
-#include <memory.h>
+#include<memory.h>
+
+#include "fmod.hpp"
+
+using namespace FMOD;
+
+System* pSystem;
+Sound* pSound[2];
+Channel* pChannel[1];
+
+void SoundSystem() {
+	System_Create(&pSystem);
+
+	pSystem->init(4, FMOD_INIT_NORMAL, NULL);
+
+	pSystem->createSound("opening.wav", FMOD_LOOP_NORMAL | FMOD_HARDWARE, NULL, &pSound[0]); // 배경음악
+	pSystem->createSound("Festival_of_Ghost.wav", FMOD_LOOP_NORMAL | FMOD_HARDWARE, NULL, &pSound[1]); // 배경음악
+}
+
+void Play(int Sound_num) {
+
+	pSystem->playSound(FMOD_CHANNEL_FREE, pSound[Sound_num], 0, pChannel);
+
+}
 
 #define ALLNOTE 1000
-
+//
 // 소리 출력 PlaySound함수
 #include<mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 //PlaySound(TEXT("Festival_of_Ghost.wav"), NULL, SND_ASYNC | SND_LOOP);
-
+//
 int n = 0;
 
 int nScore = 0;
@@ -24,6 +48,10 @@ char strScore[20] = "  ";
 int nCombo = 0;
 //
 clock_t RunningTime;
+clock_t PauseStart = 0;
+clock_t PauseEnd = 0;
+clock_t PauseTime = 0;
+clock_t Oldtime = 0;
 
 // 노트 판별 존
 typedef struct _NOTECOUNT {
@@ -38,7 +66,7 @@ NOTECOUNT Count;
 
 // 스테이지 구성
 typedef enum _STAGE {
-	READY, RUNNING,PAUSE, RESULT
+	READY, RUNNING, PAUSE, RESULT
 }STAGE;
 STAGE Stage;
 
@@ -125,28 +153,16 @@ void NoteCheck(void);
 
 
 // 2차원 배열을 아래로 떨어지게끔 해주는 함수
-char* Check; 
-char* Check1;
-char* Check2;
 void ShowNote(int n) {
 	for (int i = 0; i < 28; i++) {
-		ScreenPrint(2, i + 1, Note[27 - i + n]);
-
+		ScreenPrint(2, 28 - i, Note[n + i]);
 	}
-	Check = Note[n];   // 2차원배열 0.5초마다 Note의 배열 중  28행에 떨어지는 값을 저장받는다. 
-	Check1 = Note[n - 1]; // 0.5초 지난 후 입력받더라도 great으로 인정해주는 부분
-	Check2 = Note[n + 1]; // rmrm
 }
 
 
 
 // 입력 키 판별해주는 함수
-void CheckL(int n);
-void CheckK(int n);
-void CheckJ(int n);
-void CheckD(int n);
-void CheckS(int n);
-void CheckA(int n);
+void CheckKey(int nKey);
 
 
 
@@ -174,27 +190,22 @@ void init() {
 }
 
 
-clock_t Oldtime = 0;
 void Update() {
 	clock_t Curtime = clock();
 	Control.nMagic = 1;
 	switch (Stage) {
-	case READY :
+	case READY:
 		Oldtime = Curtime;
 		break;
 	case RUNNING:
 		// 게임 시작 후 시간 측정변수
-		RunningTime = clock() - Oldtime;
+		RunningTime = clock() - Oldtime - PauseTime;
 		break;
 	case PAUSE:
 		break;
 	}
 	NoteCheck();
 }
-
-
-
-
 
 clock_t Oldtime1 = 0;
 void Render() {
@@ -204,7 +215,7 @@ void Render() {
 	Map();
 	ScoreMap();
 	switch (Stage) {
-	case READY :
+	case READY:
 		Oldtime1 = Curtime;
 		ReadyMap();
 		if (Curtime % 1000 > 500) {
@@ -212,7 +223,8 @@ void Render() {
 		}
 		break;
 	case PAUSE:
-	case RUNNING :
+		return;
+	case RUNNING:
 		if (RunningTime > 3100) {
 			if (Curtime - Control.OldTime > Control.MovTime) {
 				Control.OldTime = Curtime;
@@ -220,8 +232,10 @@ void Render() {
 			}
 			ShowNote(n);
 		}
+
 		break;
 	}
+
 	ScreenFlipping();
 }
 
@@ -231,26 +245,41 @@ void Release() {
 
 int main(void) {
 	int nKey;
+	SoundSystem();
 	ScreenInit();
 	init(); // 초기화
-	PlaySound(TEXT("opening.wav"), NULL, SND_ASYNC | SND_LOOP);
+	Play(0);
 	while (1) {
-		
 		if (_kbhit()) {
 			nKey = _getch();
 			if (nKey == '\r') {
+				if (Stage == READY) {
+					pChannel[0]->stop();
+					Play(1);
+				}
+				else if (Stage == PAUSE) {
+					pChannel[0]->setPaused(false);
+					PauseEnd = clock();
+					PauseTime += PauseEnd - PauseStart;
+				}
 				Stage = RUNNING; // 엔터 입력 시 running시작 음악 호출
-				PlaySound(TEXT("Festival_of_Ghost.wav"), NULL, SND_ASYNC | SND_LOOP);
 			}
 			if (nKey == 'p') {
-				Stage = PAUSE;
+				if (Stage == RUNNING) {
+					pChannel[0]->setPaused(true);
+					PauseStart = clock();
+					Stage = PAUSE;
+				}
 			}
-		    if (nKey=='a' || nKey=='s' || nKey=='d' || nKey=='j' || nKey=='k' || nKey=='l'){
+			if (nKey == 'a' || nKey == 's' || nKey == 'd' || nKey == 'j' || nKey == 'k' || nKey == 'l') {
 				CheckKey(nKey);
 			}
 		}
+
 		Update();  // 데이터 갱신
-		Render();  // 화면출력		
+		Render();  // 화면출력
+
+
 	}
 	Release(); // 해제
 	ScreenRelease();
@@ -258,14 +287,12 @@ int main(void) {
 }
 
 
-
-
 // 악보
 void NoteCheck(void) {
 	for (int i = 0; i < 30; i++) {
 		Note[i] = " ";
 	}
-	Note[30+Control.nMagic] = nKeyL;
+	Note[30 + Control.nMagic] = nKeyL;
 	Note[40 + Control.nMagic] = nKeyD;
 	Note[50 + Control.nMagic] = nKeyL;
 	Note[60 + Control.nMagic] = nKeyS;
@@ -281,7 +308,7 @@ void NoteCheck(void) {
 	Note[163 + Control.nMagic] = nKeyD;
 	Note[173 + Control.nMagic] = nKeyL;
 	Note[183 + Control.nMagic] = nKeyS;
-	Note[195 + Control.nMagic] =  nKeyAJ;   // 14초 경과
+	Note[195 + Control.nMagic] = nKeyAJ;   // 14초 경과
 	Note[210 + Control.nMagic] = nKeySK;
 	Note[215 + Control.nMagic] = nKeyDL;
 	Note[220 + Control.nMagic] = nKeySK;
@@ -307,7 +334,7 @@ void NoteCheck(void) {
 	Note[340 + Control.nMagic] = nKeyK;
 	Note[342 + Control.nMagic] = nKeyJ;
 	Note[351 + Control.nMagic] = nKeyA; // 26초 경과
-	
+
 	Note[362 + Control.nMagic] = nKeyS;
 	Note[367 + Control.nMagic] = nKeyDL;
 	Note[374 + Control.nMagic] = nKeyS;
@@ -317,7 +344,7 @@ void NoteCheck(void) {
 	Note[398 + Control.nMagic] = nKeyS;
 	Note[402 + Control.nMagic] = nKeyA;
 	// 406 +42
-	Note[362+42 + Control.nMagic] = nKeyS;
+	Note[362 + 42 + Control.nMagic] = nKeyS;
 	Note[367 + 42 + Control.nMagic] = nKeyDL;
 	Note[374 + 42 + Control.nMagic] = nKeyS;
 	Note[379 + 42 + Control.nMagic] = nKeyDL;
@@ -366,7 +393,7 @@ void CheckKey(int nKey) {
 		nCombo++;
 		sprintf(strScore, "%s", "★Perfect★");
 	}
-	else if ((n>0 && strcmp(Note[n-1], KeyType) == 0) || strcmp(Note[n + 1], KeyType) == 0) { // Great 판별 구간의 Note와 입력한 KeyType가 일치하는 경우
+	else if ((n>0 && strcmp(Note[n - 1], KeyType) == 0) || strcmp(Note[n + 1], KeyType) == 0) { // Great 판별 구간의 Note와 입력한 KeyType가 일치하는 경우
 		nScore += 300;
 		nCombo++;
 		sprintf(strScore, "%s", "★Great★");
