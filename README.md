@@ -1,1 +1,2 @@
-# Rhythm_ta
+# RhythmTa
+OSS Rhythm Game git project

@@ -1,5 +1,4 @@
 #include <windows.h>
-#include <iostream>
 #include <string>
 
 using namespace std;
@@ -43,12 +42,12 @@ void ScreenRelease()
 	CloseHandle(g_hScreen[1]);
 }
 
-void ScreenPrint(int x, int y, string str)
+void ScreenPrint(int x, int y, string string)
 {
 	DWORD dw;
 	COORD CursorPosition = { x, y };
 	SetConsoleCursorPosition(g_hScreen[g_nScreenIndex], CursorPosition);
-	WriteFile(g_hScreen[g_nScreenIndex], str.c_str(), str.length(), &dw, NULL);
+	WriteFile(g_hScreen[g_nScreenIndex], string.c_str(), string.length(), &dw, NULL);
 }
 // 1 ~ 15 까지 색상 설정 가능
 void SetColor(unsigned short color)
