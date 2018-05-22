@@ -1,6 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
 #include<string.h>
+#include<iostream>
+#include<string>
 #include<stdlib.h>
 #include<time.h>
 #include<conio.h>
@@ -12,9 +14,9 @@
 #include<memory.h>
 
 #include "fmod.hpp"
-
+#pragma comment (lib, "fmodex_vc.lib")
 using namespace FMOD;
-
+using namespace std;
 System* pSystem;
 Sound* pSound[2];
 Channel* pChannel[1];
@@ -134,20 +136,20 @@ void ReadyMap1() {
 
 
 // 노트에 해당하는 변수 선언
-char* nKeyNone = "                                      ";
-char* nKeyL = "                                ■■■";
-char* nKeyK = "                          ■■■";
-char* nKeyJ = "                    ■■■";
-char* nKeyD = "            ■■■";
-char* nKeyS = "      ■■■";
-char* nKeyA = "■■■";
-char* nKeyAJ = "■■■              ■■■";
-char* nKeySK = "      ■■■              ■■■";
-char* nKeyDL = "            ■■■              ■■■";
+string nKeyNone = "                                      ";
+string nKeyL = "                                ■■■";
+string nKeyK = "                          ■■■";
+string nKeyJ = "                    ■■■";
+string nKeyD = "            ■■■";
+string nKeyS = "      ■■■";
+string nKeyA = "■■■";
+string nKeyAJ = "■■■              ■■■";
+string nKeySK = "      ■■■              ■■■";
+string nKeyDL = "            ■■■              ■■■";
 
 
 // 19개 / 3 / 3 / 3 / 1 / 3 / 3 / 3
-char* Note[ALLNOTE];
+string Note[ALLNOTE];
 void NoteCheck(void);
 
 
@@ -364,7 +366,7 @@ void NoteCheck(void) {
 // main에서 해당 키 입력시 호출되는 함수들
 
 void CheckKey(int nKey) {
-	char *KeyType; // 입력한 키의 종류
+	string KeyType; // 입력한 키의 종류
 	switch (nKey) {
 	case 'a':
 		KeyType = nKeyA;
@@ -388,12 +390,12 @@ void CheckKey(int nKey) {
 		KeyType = " ";
 		break;
 	}
-	if (strcmp(Note[n], KeyType) == 0) { // Perfect판별 구간의 Note와 입력한 KeyType가 일치하는 경우
+	if (Note[n] == KeyType) { // Perfect판별 구간의 Note와 입력한 KeyType가 일치하는 경우
 		nScore += 500;
 		nCombo++;
 		sprintf(strScore, "%s", "★Perfect★");
 	}
-	else if ((n>0 && strcmp(Note[n - 1], KeyType) == 0) || strcmp(Note[n + 1], KeyType) == 0) { // Great 판별 구간의 Note와 입력한 KeyType가 일치하는 경우
+	else if ((n>0 && Note[n - 1] == KeyType) || (Note[n + 1] == KeyType)) { // Great 판별 구간의 Note와 입력한 KeyType가 일치하는 경우
 		nScore += 300;
 		nCombo++;
 		sprintf(strScore, "%s", "★Great★");
