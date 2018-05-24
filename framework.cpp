@@ -50,6 +50,21 @@ clock_t PauseStart;
 clock_t PauseEnd;
 clock_t PauseTime = 0;
 
+//노트에 해당하는 변수 선언
+string nKeyNone = "                                      ";
+string nKeyL = "                                ■■■";
+string nKeyK = "                          ■■■";
+string nKeyJ = "                    ■■■";
+string nKeyD = "            ■■■";
+string nKeyS = "      ■■■";
+string nKeyA = "■■■";
+string nKeyAJ = "■■■              ■■■";
+string nKeySK = "      ■■■              ■■■";
+string nKeyDL = "            ■■■              ■■■";
+
+
+// 19개 / 3 / 3 / 3 / 1 / 3 / 3 / 3
+
 // 노트 판별 존
 typedef struct _NOTECOUNT {
 	int nXofA;   //(2,29)
@@ -63,7 +78,7 @@ NOTECOUNT Count;
 
 // 스테이지 구성
 typedef enum _STAGE {
-	READY, RUNNING,PAUSE, RESULT
+	READY, RUNNING, PAUSE, RESULT, SYNC
 }STAGE;
 STAGE Stage;
 
@@ -78,7 +93,65 @@ void Map(void) {
 	}
 	ScreenPrint(0, 29, "□□□□□□□□□□□□□□□□□□□□□");
 	ScreenPrint(2, 26, "______________________________________");
+	//ScreenPrint(10,10,"☆☆☆☆☆☆☆☆☆☆☆☆☆");
 }
+
+void Hitmap(int nkey)
+{
+	if (nkey == 'a')
+	{
+		ScreenPrint(4, 28, "☆");
+	}
+	else if (nkey == 's')
+	{
+		ScreenPrint(10, 28, "☆");
+	}
+	else if (nkey == 'd')
+	{
+		ScreenPrint(16, 28, "☆");
+	}
+	else if (nkey == 'j')
+	{
+		ScreenPrint(24, 28, "☆");
+	}
+	else if (nkey == 'k')
+	{
+		ScreenPrint(30, 28, "☆");
+	}
+	else if (nkey == 'l')
+	{
+		ScreenPrint(36, 28, "☆");
+	}
+
+	/*if (k == nKeyA)
+	{
+	ScreenPrint(10, 10, "☆");
+
+	}
+	else if (k == nKeyS)
+	{
+	ScreenPrint(5, 28, "☆");
+	}
+	else if (k == nKeyD)
+	{
+	ScreenPrint(8, 28, "☆");
+	}
+	else if (k == nKeyJ)
+	{
+	ScreenPrint(11, 28, "☆");
+	}
+	else if (k == nKeyK)
+	{
+	ScreenPrint(14, 28, "☆");
+	}
+	else if (k == nKeyL)
+	{
+	ScreenPrint(17, 28, "☆");
+	}*/
+	//ScreenPrint(10, 10, "☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆");
+
+}
+
 
 // 우측 점수 출력틀
 void ScoreMap() {
@@ -127,25 +200,14 @@ void ReadyMap() {
 void ReadyMap1() {
 	SetColor(10);
 	ScreenPrint(10, 15, "Press Enter to Start");
+	ScreenPrint(15, 20, "싱크 조정");
 	SetColor(15);
 }
 
 
 
-// 노트에 해당하는 변수 선언
-string nKeyNone = "                                      ";
-string nKeyL = "                                ■■■";
-string nKeyK = "                          ■■■";
-string nKeyJ = "                    ■■■";
-string nKeyD = "            ■■■";
-string nKeyS = "      ■■■";
-string nKeyA = "■■■";
-string nKeyAJ = "■■■              ■■■";
-string nKeySK = "      ■■■              ■■■";
-string nKeyDL = "            ■■■              ■■■";
 
 
-// 19개 / 3 / 3 / 3 / 1 / 3 / 3 / 3
 string Note[ALLNOTE];
 void NoteCheck(void);
 
@@ -153,8 +215,8 @@ void NoteCheck(void);
 
 // 2차원 배열을 아래로 떨어지게끔 해주는 함수
 void ShowNote(int n) {
-	for (int i = 0; i < 28; i++) {
-		ScreenPrint(2, 28-i, Note[n+i]);
+	for (int i = 0; i < 27; i++) {
+		ScreenPrint(2, 27 - i, Note[n + i]);
 	}
 }
 
@@ -171,10 +233,10 @@ void init() {
 	Control.OldTime = 0;
 	Control.nMagic = 1;
 	Stage = READY;
-	
-	for (int i = 0; i < ALLNOTE; i++) {
-		Note[i] = " ";
-	}
+
+	/*for (int i = 0; i < ALLNOTE; i++) {
+	Note[i] = " ";
+	}*/ // 노트 초기화 할 필요 있나? noteCheck 에서 노트들 모두 초기화해주기때문에
 	RunningTime = 0;
 	NoteCheck();
 	Count.nXofA = 2;   //(2,29)
@@ -192,9 +254,9 @@ void init() {
 clock_t Oldtime = 0;
 void Update() {
 	clock_t Curtime = clock();
-	//Control.nMagic = 1;
+	Control.nMagic = 1;
 	switch (Stage) {
-	case READY :
+	case READY:
 		Oldtime = Curtime;
 		break;
 	case RUNNING:
@@ -212,14 +274,15 @@ void Update() {
 
 
 clock_t Oldtime1 = 0;
-void Render() {
+void Render(int nkey) {
 	clock_t Curtime = clock(); // 지금까지 흐른 시간
 	ScreenClear();
 	//출력코드
 	Map();
+	Hitmap(nkey);
 	ScoreMap();
 	switch (Stage) {
-	case READY ://대기상태
+	case READY://대기상태
 		Oldtime1 = Curtime;
 		ReadyMap();
 		if (Curtime % 1000 > 500) {
@@ -228,10 +291,10 @@ void Render() {
 		break;
 	case PAUSE:
 		return;
-	case RUNNING :
+	case RUNNING:
 		if (RunningTime > 3100) //3초 이후부터
 		{
-			if (Curtime - Control.OldTime > Control.MovTime) 
+			if (Curtime - Control.OldTime > Control.MovTime)
 			{
 				Control.OldTime = Curtime;
 				n++;//노트가 저장된 배열의 인덱스를 증가
@@ -254,10 +317,10 @@ void Release() {
 
 }
 int main(void) {
-	int nKey;
+	int nKey = 0;
 	SoundSystem(); // FMOD 사용 준비
 	ScreenInit();
-	init(); // 초기화
+	init(); // stage를 ready 상태로 만들고 노트들 초기화
 	Play(0);
 	while (1) {
 		if (_kbhit()) {
@@ -272,24 +335,37 @@ int main(void) {
 					PauseTime += PauseEnd - PauseStart;
 					pChannel[0]->setPaused(false);
 				}
+
 				Stage = RUNNING; // 엔터 입력 시 running시작 음악 호출
 			}
+
 			if (nKey == 'p') {
 				if (Stage == RUNNING) {
 					PauseStart = clock();
 					pChannel[0]->setPaused(true);
+					Stage = PAUSE;
 				}
-				Stage = PAUSE;
 			}
+			/*if (nKey == 'c')
+			{
+			if (Stage == RUNNING)
+			{
+			}
+			else if (Stage == READY)
+			{
+			}
+			}*/
+
 			if (nKey == 'a' || nKey == 's' || nKey == 'd' || nKey == 'j' || nKey == 'k' || nKey == 'l') {
+				if (Stage == PAUSE) continue;
 				CheckKey(nKey);
 			}
 		}
 
 		Update();  // 데이터 갱신
-		Render();  // 화면출력
+		Render(nKey);  // 화면출력
 
-		
+
 	}
 	Release(); // 해제
 	ScreenRelease();
@@ -312,28 +388,9 @@ void NoteCheck(void) {
 		Note[50 + i + Control.nMagic] = nKeyL;
 		Note[60 + i + Control.nMagic] = nKeyS;
 	}
-	/*Note[30+Control.nMagic] = nKeyL;
-	Note[40 + Control.nMagic] = nKeyD;
-	Note[50 + Control.nMagic] = nKeyL;
-	Note[60 + Control.nMagic] = nKeyS;
+	///////////// L > D > L > S ///// 10간격으로 4번 반복 
 
-	Note[70 + Control.nMagic] = nKeyL;
-	Note[80 + Control.nMagic] = nKeyD;
-	Note[90 + Control.nMagic] = nKeyL;
-	Note[100 + Control.nMagic] = nKeyS;
-
-	Note[110 + Control.nMagic] = nKeyL;
-	Note[120 + Control.nMagic] = nKeyD;
-	Note[130 + Control.nMagic] = nKeyL;
-	Note[140 + Control.nMagic] = nKeyS;
-
-	Note[150 + Control.nMagic] = nKeyL;
-	Note[160 + Control.nMagic] = nKeyD;
-	Note[170 + Control.nMagic] = nKeyL;
-	Note[180 + Control.nMagic] = nKeyS;*/
-	///////////// L > D > L > S ///// 10간격으로 4번 반복 => 줄이기
-
-	Note[195 + Control.nMagic] =  nKeyAJ;  // 14초 경과
+	Note[195 + Control.nMagic] = nKeyAJ;  // 14초 경과
 
 	Note[208 + Control.nMagic] = nKeySK;
 	Note[213 + Control.nMagic] = nKeyDL;
@@ -364,19 +421,19 @@ void NoteCheck(void) {
 	{
 		Note[320 + i + Control.nMagic] = nKeyAJ;
 	}
-	
+
 	Note[334 + Control.nMagic] = nKeyL;
-	 Note[336 + Control.nMagic] = nKeyK;
+	Note[336 + Control.nMagic] = nKeyK;
 	Note[338 + Control.nMagic] = nKeyJ;
 
 	//Note[351 + Control.nMagic] = nKeyA; // 26초 경과
-	
+
 	Note[353 + Control.nMagic] = nKeyS; //S
 	Note[358 + Control.nMagic] = nKeyDL;
 	Note[365 + Control.nMagic] = nKeyS; //S
 	Note[370 + Control.nMagic] = nKeyDL;
 	Note[377 + Control.nMagic] = nKeyS;
-	Note[382+ Control.nMagic] = nKeyDL;
+	Note[382 + Control.nMagic] = nKeyDL;
 	Note[389 + Control.nMagic] = nKeyS;
 	//Note[402 + Control.nMagic] = nKeyA;
 	// 406 +42
@@ -385,14 +442,14 @@ void NoteCheck(void) {
 	Note[409 + Control.nMagic] = nKeyS;
 	Note[413 + Control.nMagic] = nKeyDL;
 	Note[418 + Control.nMagic] = nKeyS;
-	Note[422 +  Control.nMagic] = nKeyDL;
+	Note[422 + Control.nMagic] = nKeyDL;
 	//Note[398 + 42 + Control.nMagic] = nKeyS;
 
-	for(int i = 0; i<=10 ; i++)
+	for (int i = 0; i <= 10; i++)
 	{
 		Note[440 + i + Control.nMagic] = nKeyA;
 	}
-	
+
 
 	Note[461 + Control.nMagic] = nKeyJ;
 	Note[462 + Control.nMagic] = nKeyK;
@@ -400,9 +457,9 @@ void NoteCheck(void) {
 
 	Note[470 + Control.nMagic] = nKeyA;
 
-//
+	//
 
-	Note[477+ Control.nMagic] = nKeyJ;
+	Note[477 + Control.nMagic] = nKeyJ;
 	Note[480 + Control.nMagic] = nKeyK;
 	Note[483 + Control.nMagic] = nKeyL;
 
@@ -424,7 +481,7 @@ void NoteCheck(void) {
 	Note[531 + Control.nMagic] = nKeyL;
 
 	Note[536 + Control.nMagic] = nKeyA;
-	Note[540 + Control.nMagic] = nKeyDL;
+	Note[540 + Control.nMagic] = nKeyD;
 
 	Note[543 + Control.nMagic] = nKeyJ;
 	Note[545 + Control.nMagic] = nKeyK;
@@ -437,7 +494,7 @@ void NoteCheck(void) {
 	Note[563 + Control.nMagic] = nKeyD;
 
 	//
-	Note[566 + Control.nMagic] = nKeyAJ;
+	Note[566 + Control.nMagic] = nKeyA;
 	Note[569 + Control.nMagic] = nKeyK;
 	Note[572 + Control.nMagic] = nKeyL;
 
@@ -461,7 +518,7 @@ void NoteCheck(void) {
 	Note[631 + Control.nMagic] = nKeyJ;
 	Note[632 + Control.nMagic] = nKeyK;
 
-	for (int i=0;i<6;i++)
+	for (int i = 0; i<6; i++)
 	{
 		Note[633 + i + Control.nMagic] = nKeyL;
 	}
@@ -472,7 +529,7 @@ void NoteCheck(void) {
 	Note[651 + Control.nMagic] = nKeyL;
 
 	Note[659 + Control.nMagic] = nKeyA;
-	Note[664 + Control.nMagic] = nKeyDL;
+	Note[664 + Control.nMagic] = nKeyD;
 
 
 	Note[669 + Control.nMagic] = nKeyJ;
@@ -489,7 +546,7 @@ void NoteCheck(void) {
 	Note[699 + Control.nMagic] = nKeyL;
 
 	Note[704 + Control.nMagic] = nKeyA;
-	Note[708 + Control.nMagic] = nKeyDL;
+	Note[708 + Control.nMagic] = nKeyD;
 
 	Note[711 + Control.nMagic] = nKeyJ;
 	Note[713 + Control.nMagic] = nKeyK;
@@ -498,7 +555,22 @@ void NoteCheck(void) {
 	Note[719 + Control.nMagic] = nKeyK;
 	Note[721 + Control.nMagic] = nKeyL;
 
+	//
+	Note[726 + Control.nMagic] = nKeyJ;
+	Note[729 + Control.nMagic] = nKeyK;
+	Note[732 + Control.nMagic] = nKeyL;
 
+	Note[737 + Control.nMagic] = nKeyA;
+	Note[740 + Control.nMagic] = nKeyD;
+
+
+	Note[746 + Control.nMagic] = nKeyJ;
+	Note[749 + Control.nMagic] = nKeyK;
+	Note[752 + Control.nMagic] = nKeyJ;
+	Note[755 + Control.nMagic] = nKeyK;
+
+	Note[760 + Control.nMagic] = nKeyA;
+	Note[765 + Control.nMagic] = nKeyD;
 
 }
 
@@ -541,11 +613,14 @@ void CheckKey(int nKey) {
 		nScore += 500;
 		nCombo++;
 		sprintf(strScore, "%s", "★Perfect★");
+
+
 	}
 	else if ((n > 0 && (Note[n - 1] == KeyType)) || (Note[n + 1] == KeyType)) { // Great 판별 구간의 Note와 입력한 KeyType가 일치하는 경우
 		nScore += 300;
 		nCombo++;
 		sprintf(strScore, "%s", "★Great★");
+
 	}
 	else {
 		nCombo = 0;
