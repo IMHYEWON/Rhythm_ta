@@ -40,7 +40,6 @@ void Play(int Sound_num) {
 
 //
 int n = 0;
-
 int nScore = 0;
 char strScore[20] = "  ";
 int nCombo = 0;
@@ -49,6 +48,7 @@ clock_t RunningTime;
 clock_t PauseStart;
 clock_t PauseEnd;
 clock_t PauseTime = 0;
+clock_t Oldtime1 = 0;
 
 //노트에 해당하는 변수 선언
 string nKeyNone = "                                      ";
@@ -61,6 +61,7 @@ string nKeyA = "■■■";
 string nKeyAJ = "■■■              ■■■";
 string nKeySK = "      ■■■              ■■■";
 string nKeyDL = "            ■■■              ■■■";
+ 
 
 
 // 19개 / 3 / 3 / 3 / 1 / 3 / 3 / 3
@@ -81,104 +82,7 @@ typedef enum _STAGE {
 	READY, RUNNING, PAUSE, RESULT, SYNC
 }STAGE;
 STAGE Stage;
-
-
-
-// 스테이지 기본 틀
-void Map(void) {
-	int nNum = 0;
-	ScreenPrint(0, 0, "□□□□□□□□□□□□□□□□□□□□□");
-	for (int i = 1; i < 29; i++) {
-		ScreenPrint(0, i, "□\t\t\t\t\t□");
-	}
-	ScreenPrint(0, 29, "□□□□□□□□□□□□□□□□□□□□□");
-	ScreenPrint(2, 26, "______________________________________");
-	//ScreenPrint(10,10,"☆☆☆☆☆☆☆☆☆☆☆☆☆");
-}
-
-void Hitmap(int nkey)
-{
-	if (nkey == 'a')
-	{
-		ScreenPrint(4, 28, "☆");
-	}
-	else if (nkey == 's')
-	{
-		ScreenPrint(10, 28, "☆");
-	}
-	else if (nkey == 'd')
-	{
-		ScreenPrint(16, 28, "☆");
-	}
-	else if (nkey == 'j')
-	{
-		ScreenPrint(24, 28, "☆");
-	}
-	else if (nkey == 'k')
-	{
-		ScreenPrint(30, 28, "☆");
-	}
-	else if (nkey == 'l')
-	{
-		ScreenPrint(36, 28, "☆");
-	}
-
-	/*if (k == nKeyA)
-	{
-	ScreenPrint(10, 10, "☆");
-
-	}
-	else if (k == nKeyS)
-	{
-	ScreenPrint(5, 28, "☆");
-	}
-	else if (k == nKeyD)
-	{
-	ScreenPrint(8, 28, "☆");
-	}
-	else if (k == nKeyJ)
-	{
-	ScreenPrint(11, 28, "☆");
-	}
-	else if (k == nKeyK)
-	{
-	ScreenPrint(14, 28, "☆");
-	}
-	else if (k == nKeyL)
-	{
-	ScreenPrint(17, 28, "☆");
-	}*/
-	//ScreenPrint(10, 10, "☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆");
-
-}
-
-
-// 우측 점수 출력틀
-void ScoreMap() {
-	// 경과시간
-	char nTime[20];//경과 시간을 나타낸다
-	sprintf(nTime, "시간 : %d.%d초", RunningTime / 1000, RunningTime % 1000);
-	ScreenPrint(44, 2, nTime);
-	// 점수 목록
-	ScreenPrint(44, 10, strScore);//Great,Perfect판별
-	ScreenPrint(44, 22, "Great : 300점");
-	ScreenPrint(44, 23, "Perfect : 500점");
-	//ScreenPrint(44, 25, "\'p\' to Pause");
-	// 점수
-	char UserScore[20];//사용자 점수를 나타냄
-	sprintf(UserScore, "점수 : %d 점", nScore);
-	ScreenPrint(44, 4, UserScore);
-	ScreenPrint(44, 27, "<<< 히트 구간(G)");
-	ScreenPrint(44, 28, "<<< 히트 구간(P)");
-	ScreenPrint(44, 29, "<<< 히트 구간(G)");
-	//콤보
-	char strCombo[20];//콤보를 나타낸다
-	sprintf(strCombo, "%d 콤보", nCombo);
-	ScreenPrint(44, 13, strCombo);
-}
-
-
-
+string Note[ALLNOTE];
 // 시간 컨트롤러
 typedef struct  CONTROL {
 	clock_t MovTime; // 싱크 맞추는 이동시간
@@ -188,149 +92,22 @@ typedef struct  CONTROL {
 }CONTROL;
 CONTROL Control;
 
-// 게임 실행 전 준비화면
-void ReadyMap() {
-	ScreenPrint(15, 10, "유령의 축제");
-	ScreenPrint(2, 26, "□□□■■■□□□  ■■■□□□■■■");
-	ScreenPrint(2, 27, "  A     S     D       J     K      L");
-	// 게임 조작 키 설명 
-}
 
-// Render함수에서 깜빡이면서 출력
-void ReadyMap1() {
-	SetColor(10);
-	ScreenPrint(10, 15, "Press Enter to Start");
-	ScreenPrint(15, 20, "싱크 조정");
-	SetColor(15);
-}
-
-
-
-<<<<<<< HEAD
-=======
-// 노트에 해당하는 변수 선언
-string nKeyNone = "                                      ";
-string nKeyL = "                                ■■■";
-string nKeyK = "                          ■■■";
-string nKeyJ = "                    ■■■";
-string nKeyD = "            ■■■";
-string nKeyS = "      ■■■";
-string nKeyA = "■■■";
-string nKeyAJ = "■■■              ■■■";
-string nKeySK = "      ■■■              ■■■";
-string nKeyDL = "            ■■■              ■■■";
-string nKeyALL = "■■■      ■■■  ■■■      ■■■";
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
-
-
-string Note[ALLNOTE];
 void NoteCheck(void);
-
-
-
-// 2차원 배열을 아래로 떨어지게끔 해주는 함수
-void ShowNote(int n) {
-	for (int i = 0; i < 27; i++) {
-		ScreenPrint(2, 27 - i, Note[n + i]);
-	}
-}
-
-
-
-// 입력 키 판별해주는 함수
+string GetKeyType(int nKey);
 void CheckKey(int nKey);
+void Map(void);
+void Hitmap(int nKey);
+void ScoreMap(void);
+void ReadyMap(void);
+void ReadyMap1(void);
+void ShowNote(int n);
+void init(void);
+void Update(void);
+void Render(int nKey);
+void Release(void);
 
 
-
-
-void init() {
-	Control.MovTime = 52;
-	Control.OldTime = 0;
-	Control.nMagic = 1;
-	Stage = READY;
-
-	/*for (int i = 0; i < ALLNOTE; i++) {
-	Note[i] = " ";
-	}*/ // 노트 초기화 할 필요 있나? noteCheck 에서 노트들 모두 초기화해주기때문에
-	RunningTime = 0;
-	NoteCheck();
-	Count.nXofA = 2;   //(2,29)
-	Count.nXofS = 8;
-	Count.nXofD = 14;
-	Count.nXofJ = 21;
-	Count.nXofK = 27;
-	Count.nXofL = 33;
-
-	//Stage = READY;
-
-}
-
-
-clock_t Oldtime = 0;
-void Update() {
-	clock_t Curtime = clock();
-	Control.nMagic = 1;
-	switch (Stage) {
-	case READY:
-		Oldtime = Curtime;
-		break;
-	case RUNNING:
-		// 게임 시작 후 시간 측정변수
-		RunningTime = Curtime - Oldtime - PauseTime;
-		break;
-	case PAUSE:
-		break;
-	}
-	//NoteCheck();
-}
-
-
-
-
-
-clock_t Oldtime1 = 0;
-void Render(int nkey) {
-	clock_t Curtime = clock(); // 지금까지 흐른 시간
-	ScreenClear();
-	//출력코드
-	Map();
-	Hitmap(nkey);
-	ScoreMap();
-	switch (Stage) {
-	case READY://대기상태
-		Oldtime1 = Curtime;
-		ReadyMap();
-		if (Curtime % 1000 > 500) {
-			ReadyMap1();
-		}//0.5초 단위로 화면을 출력
-		break;
-	case PAUSE:
-		return;
-	case RUNNING:
-		if (RunningTime > 3100) //3초 이후부터
-		{
-			if (Curtime - Control.OldTime > Control.MovTime)
-			{
-				Control.OldTime = Curtime;
-				n++;//노트가 저장된 배열의 인덱스를 증가
-			}
-			ShowNote(n);
-		}
-
-		break;
-	}
-
-
-
-
-
-
-	ScreenFlipping();
-}
-
-void Release() {
-
-}
 int main(void) {
 	int nKey = 0;
 	SoundSystem(); // FMOD 사용 준비
@@ -388,8 +165,6 @@ int main(void) {
 }
 
 
-
-
 // 악보
 void NoteCheck(void) {
 	for (int i = 0; i < 30; i++) {
@@ -444,7 +219,6 @@ void NoteCheck(void) {
 
 	//Note[351 + Control.nMagic] = nKeyA; // 26초 경과
 
-<<<<<<< HEAD
 	Note[353 + Control.nMagic] = nKeyS; //S
 	Note[358 + Control.nMagic] = nKeyDL;
 	Note[365 + Control.nMagic] = nKeyS; //S
@@ -462,7 +236,6 @@ void NoteCheck(void) {
 	Note[422 + Control.nMagic] = nKeyDL;
 	//Note[398 + 42 + Control.nMagic] = nKeyS;
 
-=======
 	for (int i = 0; i < 25; i += 12)
 	{
 		Note[353 + i + Control.nMagic] = nKeyS;
@@ -475,26 +248,18 @@ void NoteCheck(void) {
 		Note[400 + i + Control.nMagic] = nKeyS;
 		Note[404 + i + Control.nMagic] = nKeyDL;
 	}
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
+
 	for (int i = 0; i <= 10; i++)
 	{
 		Note[440 + i + Control.nMagic] = nKeyA;
 	}
-<<<<<<< HEAD
 
-=======
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
 
 	Note[461 + Control.nMagic] = nKeyJ;
 	Note[462 + Control.nMagic] = nKeyK;
 	Note[463 + Control.nMagic] = nKeyL;
 	Note[470 + Control.nMagic] = nKeyA;
 
-<<<<<<< HEAD
-	//
-
-=======
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
 	Note[477 + Control.nMagic] = nKeyJ;
 	Note[480 + Control.nMagic] = nKeyK;
 	Note[483 + Control.nMagic] = nKeyL;
@@ -528,10 +293,6 @@ void NoteCheck(void) {
 	Note[558 + Control.nMagic] = nKeyA;
 	Note[563 + Control.nMagic] = nKeyD;
 
-<<<<<<< HEAD
-	//
-=======
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
 	Note[566 + Control.nMagic] = nKeyA;
 	Note[569 + Control.nMagic] = nKeyK;
 	Note[572 + Control.nMagic] = nKeyL;
@@ -567,10 +328,6 @@ void NoteCheck(void) {
 
 	Note[659 + Control.nMagic] = nKeyA;
 	Note[664 + Control.nMagic] = nKeyD;
-<<<<<<< HEAD
-
-=======
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
 
 	for (int i = 0; i < 7; i += 6)
 	{
@@ -587,8 +344,6 @@ void NoteCheck(void) {
 
 	Note[704 + Control.nMagic] = nKeyA;
 	Note[708 + Control.nMagic] = nKeyD;
-<<<<<<< HEAD
-=======
 
 	for (int i = 0; i < 7; i += 6)
 	{
@@ -600,12 +355,10 @@ void NoteCheck(void) {
 	Note[726 + Control.nMagic] = nKeyJ;
 	Note[729 + Control.nMagic] = nKeyK;
 	Note[732 + Control.nMagic] = nKeyL;
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
 
 	Note[737 + Control.nMagic] = nKeyA;
 	Note[740 + Control.nMagic] = nKeyD;
 
-<<<<<<< HEAD
 	//
 	Note[726 + Control.nMagic] = nKeyJ;
 	Note[729 + Control.nMagic] = nKeyK;
@@ -622,7 +375,6 @@ void NoteCheck(void) {
 
 	Note[760 + Control.nMagic] = nKeyA;
 	Note[765 + Control.nMagic] = nKeyD;
-=======
 	for (int i = 0; i < 9; i += 4)
 	{
 		Note[745 + Control.nMagic] = nKeyJ;
@@ -641,8 +393,7 @@ void NoteCheck(void) {
 	}
 
 
-	Note[797 + Control.nMagic] = nKeyALL;
->>>>>>> b59a2beccc2e227551ba4ecdf91634b48227634c
+	//Note[797 + Control.nMagic] = nKeyALL;
 
 }
 
@@ -699,3 +450,199 @@ void CheckKey(int nKey) {
 		nCombo = 0;
 	}
 }
+
+
+void Map(void) {
+	int nNum = 0;
+	ScreenPrint(0, 0, "□□□□□□□□□□□□□□□□□□□□□");
+	for (int i = 1; i < 29; i++) {
+		ScreenPrint(0, i, "□\t\t\t\t\t□");
+	}
+	ScreenPrint(0, 29, "□□□□□□□□□□□□□□□□□□□□□");
+	ScreenPrint(2, 26, "______________________________________");
+	//ScreenPrint(10,10,"☆☆☆☆☆☆☆☆☆☆☆☆☆");
+}
+
+void Hitmap(int nkey)
+{
+	if (nkey == 'a')
+	{
+		ScreenPrint(4, 28, "☆");
+
+
+	}
+	else if (nkey == 's')
+	{
+		ScreenPrint(10, 28, "☆");
+
+	}
+	else if (nkey == 'd')
+	{
+		ScreenPrint(16, 28, "☆");
+
+	}
+	else if (nkey == 'j')
+	{
+		ScreenPrint(24, 28, "☆");
+
+	}
+	else if (nkey == 'k')
+	{
+		ScreenPrint(30, 28, "☆");
+
+	}
+	else if (nkey == 'l')
+	{
+		ScreenPrint(36, 28, "☆");
+
+	}
+
+
+}
+
+
+// 우측 점수 출력틀
+void ScoreMap() {
+	// 경과시간
+	char nTime[20];//경과 시간을 나타낸다
+	sprintf(nTime, "시간 : %d.%d초", RunningTime / 1000, RunningTime % 1000);
+	ScreenPrint(44, 2, nTime);
+	// 점수 목록
+	ScreenPrint(44, 10, strScore);//Great,Perfect판별
+	ScreenPrint(44, 22, "Great : 300점");
+	ScreenPrint(44, 23, "Perfect : 500점");
+	//ScreenPrint(44, 25, "\'p\' to Pause");
+	// 점수
+	char UserScore[20];//사용자 점수를 나타냄
+	sprintf(UserScore, "점수 : %d 점", nScore);
+	ScreenPrint(44, 4, UserScore);
+	ScreenPrint(44, 27, "<<< 히트 구간(G)");
+	ScreenPrint(44, 28, "<<< 히트 구간(P)");
+	ScreenPrint(44, 29, "<<< 히트 구간(G)");
+	//콤보
+	char strCombo[20];//콤보를 나타낸다
+	sprintf(strCombo, "%d 콤보", nCombo);
+	ScreenPrint(44, 13, strCombo);
+}
+
+
+
+
+
+// 게임 실행 전 준비화면
+void ReadyMap() {
+	ScreenPrint(15, 10, "유령의 축제");
+	ScreenPrint(2, 26, "□□□■■■□□□  ■■■□□□■■■");
+	ScreenPrint(2, 27, "  A     S     D       J     K      L");
+	// 게임 조작 키 설명 
+}
+
+// Render함수에서 깜빡이면서 출력
+void ReadyMap1() {
+	SetColor(10);
+	ScreenPrint(10, 15, "Press Enter to Start");
+	ScreenPrint(15, 20, "싱크 조정");
+	SetColor(15);
+}
+
+
+
+// 2차원 배열을 아래로 떨어지게끔 해주는 함수
+void ShowNote(int n) {
+	for (int i = 0; i < 27; i++) {
+		ScreenPrint(2, 27 - i, Note[n + i]);
+	}
+}
+
+
+
+
+
+void init() {
+	Control.MovTime = 52;
+	Control.OldTime = 0;
+	Control.nMagic = 1;
+	Stage = READY;
+
+	/*for (int i = 0; i < ALLNOTE; i++) {
+	Note[i] = " ";
+	}*/ // 노트 초기화 할 필요 있나? noteCheck 에서 노트들 모두 초기화해주기때문에
+	RunningTime = 0;
+	NoteCheck();
+	Count.nXofA = 2;   //(2,29)
+	Count.nXofS = 8;
+	Count.nXofD = 14;
+	Count.nXofJ = 21;
+	Count.nXofK = 27;
+	Count.nXofL = 33;
+
+	//Stage = READY;
+
+}
+
+
+clock_t Oldtime = 0;
+void Update() {
+	clock_t Curtime = clock();
+	Control.nMagic = 1;
+	switch (Stage) {
+	case READY:
+		Oldtime = Curtime;
+		break;
+	case RUNNING:
+		// 게임 시작 후 시간 측정변수
+		RunningTime = Curtime - Oldtime - PauseTime;
+		break;
+	case PAUSE:
+		break;
+	}
+	//NoteCheck();
+}
+
+
+
+
+void Render(int nkey) {
+	clock_t Curtime = clock(); // 지금까지 흐른 시간
+	ScreenClear();
+	//출력코드
+	Map();
+	Hitmap(nkey);
+	ScoreMap();
+	switch (Stage) {
+	case READY://대기상태
+		Oldtime1 = Curtime;
+		ReadyMap();
+		if (Curtime % 1000 > 500) {
+			ReadyMap1();
+		}//0.5초 단위로 화면을 출력
+		break;
+	case PAUSE:
+		return;
+	case RUNNING:
+		if (RunningTime > 3100) //3초 이후부터
+		{
+			if (Curtime - Control.OldTime > Control.MovTime)
+			{
+				Control.OldTime = Curtime;
+				n++;//노트가 저장된 배열의 인덱스를 증가
+			}
+			ShowNote(n);
+		}
+
+		break;
+	}
+
+
+
+
+
+
+	ScreenFlipping();
+}
+
+
+void Release()
+{
+}
+
